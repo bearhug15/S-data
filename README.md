@@ -13,7 +13,7 @@
 
 В итоге пришло к такой структуре (Ident Mod* (...)) Где корневой элемент  в качестве Идентификатора имеет строку “ROOT”, а в качестве значений могут выступать другая структура, строка или число. 
 
-*Синтаксис описания данных в БНФ:*
+### Синтаксис описания данных в БНФ:
 
     RootExpr ::= '(' ‘“ROOT”’ Modificator* '(' Value* ')' ')'
     Expr ::= '(' Ident Modificator* '(' Value* ')' ')'
@@ -39,18 +39,18 @@
 
 Условие модификатора может состоять из идентификатора - требуется модификатор с таким идентификатором,  либо еще ограничение на значение (конкретное или промежуток для чисел)
 
-*Синтаксис в БНФ:*
+### Синтаксис описания пути в БНФ:
 
     Path ::= '(' Premis? PathPart* ')'
     Premis ::= '(' ' "ROOT" ' Modificator+ ')'
     PathPart ::= '(' ( Ident | SearchConditions ) Modificator* ')'
-    /*Several Search Condition is connected as OR*/
-    SearchConditions ::= '(' SearchDepth JoinedConditions+ ')'
+    SearchConditions ::= '(' SearchDepth JoinedConditions ')'
     SearchDepth ::= '('StartDepth EndDepth')'
     /*Empty or <=0 StartDepth means from current cursor*/
     StartDepth ::= '(' (Number | Ident)? ')'
     /*Empty or <0 StartDepth means till the bottom*/
     EndDepth ::= '(' (Number | Ident)?')'
+    /*Several Search Condition is connected as OR*/
     JoinedConditions ::= '(' SearchCondition+ ')'
     /*If no conditions on Ident, then Ident condition would be ()*/ 
     SearchCondition ::= '(' IdentCondition ModConditions? ')'
@@ -83,7 +83,7 @@
 
 3. RootSchema - более конкретизированное описание схем. В нем Можно накладывать дополнительные ограничения на связь между модификаторами и идентификаторами. При этом локальные ограничения распространяются только на текущий уровень и имеют более высокий приоритет по сравнению с глобальными.
 
-*Синтаксис описания схемы в БНФ форме:*
+### Синтаксис описания схемы в БНФ форме:
 
     FullSchema ::= '('GlobalIdentRestrictions GlobalModsRestrictions RootSchema ')'
     RootSchema ::= '(' '(‘ ‘“ROOT”’ ModsRestriction?')' '(' IdentsRestrictions? ')' ')'
