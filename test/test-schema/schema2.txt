@@ -1,0 +1,3 @@
+((("ident1") ("ident2") ("ident3")) () (("ROOT") ))
+
+((("ident1") ("ident2") ("ident3")) (("ident2" ("mod1") ("mod2") ("mod3"))) (("ROOT") ))
