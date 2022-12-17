@@ -15,11 +15,11 @@
 
 ### Синтаксис описания данных в БНФ:
 
-    RootExpr ::= '(' ‘“ROOT”’ Modificator* '(' Value* ')' ')'
+    RootExpr ::= '(' '“ROOT”' Modificator* '(' Value* ')' ')'
     Expr ::= '(' Ident Modificator* '(' Value* ')' ')'
     Value ::= Expr | String | Number
     Ident ::= String
-    Modificator ::=  ‘(‘ Ident (Ident | Number)? ‘)’
+    Modificator ::=  '(' Ident (Ident | Number)? ')'
 
 
 
@@ -42,7 +42,7 @@
 ### Синтаксис описания пути в БНФ:
 
     Path ::= '(' Premis? PathPart* ')'
-    Premis ::= '(' ' "ROOT" ' Modificator+ ')'
+    Premis ::= '(' '"ROOT"' Modificator+ ')'
     PathPart ::= '(' ( Ident | SearchConditions ) Modificator* ')'
     SearchConditions ::= '(' SearchDepth JoinedConditions ')'
     SearchDepth ::= '('StartDepth EndDepth')'
@@ -86,24 +86,24 @@
 ### Синтаксис описания схемы в БНФ форме:
 
     FullSchema ::= '('GlobalIdentRestrictions GlobalModsRestrictions RootSchema ')'
-    RootSchema ::= '(' '(‘ ‘“ROOT”’ ModsRestriction?')' '(' IdentsRestrictions? ')' ')'
-    Schema ::= '(' SchemaIdent '(' IdentsRestrictions? ')' ')'
+    RootSchema ::= '(' '(' '“ROOT”' ModsRestriction?')' Schema? ')'
+    Schema ::= '(' SchemaIdent '(' SchemaValue* ')' ')'
     /*To undersatnd current instance - see the type of first element*/
     SchemaValue ::= Schema | SchemaIdent
-    /*Local restrictions have higher priority than global*/ 
-    SchemaIdent ::= '(' Ident ModsRestriction? ')'
+    /*Local restrictions have higher priority than global*/
+    SchemaIdent ::= '(' (IdentsRestrictions | Ident) ModsRestriction? ')'
     IdentsRestrictions ::= '('PresentIdents PossibleIdents NonPresentIdents  ')'
     PossibleIdents ::= '('ShemaValue*')'
     PresentIdents ::= '('ShemaValue*')'
     NonPresentIdents ::= '('ShemaValue*')'
-    GlobalIdentRestrictions ::= '(' GlobalPresentIdents GlobalPossibleIdents GlobalNonPresentIdents ')'
+    GlobalIdentRestrictions ::= IdentsRestrictions | ( '(' ')' )
     GlobalPossibleIdents ::= '('Ident*')'
     GlobalPresentIdents ::= '('Ident*')'
     GlobalNonPresentIdents ::= '('Ident*')'
     GlobalModsRestrictions ::= '(' IdentModsRestriction* ')'
     IdentModsRestriction ::= '(' Ident ModsRestriction ')'
     /*PresentMods - have to be;  PossibleMods - could be; NonPresentMods - couldn't be*/
-    ModsRestriction ::= '(' PresentMods PossibleMods NonPresentMods ')' 
+    ModsRestriction ::= PresentMods PossibleMods NonPresentMods
     PossibleMods ::= '(' ModificatorName* ')'
     PresentMods ::= '(' ModificatorName* ')'
     NonPresentMods ::= '(' ModificatorName* ')'
