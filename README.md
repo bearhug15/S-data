@@ -86,7 +86,7 @@
 ### Синтаксис описания схемы в БНФ форме:
 
     FullSchema ::= '('GlobalIdentRestrictions GlobalModsRestrictions RootSchema ')'
-    RootSchema ::= '(' '(' '“ROOT”' ModsRestriction?')' Schema? ')'
+    RootSchema ::= '(' '(' '“ROOT”' ModsRestriction?')' ('(' Schema* ')') ? ')'
     Schema ::= '(' SchemaIdent '(' SchemaValue* ')' ')'
     /*To undersatnd current instance - see the type of first element*/
     SchemaValue ::= Schema | SchemaIdent
@@ -96,7 +96,7 @@
     PossibleIdents ::= '('ShemaValue*')'
     PresentIdents ::= '('ShemaValue*')'
     NonPresentIdents ::= '('ShemaValue*')'
-    GlobalIdentRestrictions ::= IdentsRestrictions | ( '(' ')' )
+    GlobalIdentRestrictions ::= ( '('GlobalPresentIdents GlobalPossibleIdents GlobalNonPresentIdents')' ) | ( '(' ')' )
     GlobalPossibleIdents ::= '('Ident*')'
     GlobalPresentIdents ::= '('Ident*')'
     GlobalNonPresentIdents ::= '('Ident*')'

@@ -97,3 +97,52 @@
     (is (= (check-schema-correctness schema8)
            true)))
   )
+
+(def mods1 '())
+(def mods2 '(("mod1")))
+(def mods3 '(("mod2" "mod1") ("mod3" 1)))
+
+(def mods-restr1 [(set '()) (set '()) (set '())])
+(def mods-restr2 [(set '("mod1")) (set '()) (set '())])
+(def mods-restr3 [(set '()) (set '("mod1")) (set '())])
+(def mods-restr4 [(set '()) (set '()) (set '("mod1"))])
+(def mods-restr5 [(set '("mod2")) (set '()) (set '("mod3"))])
+
+(deftest check-mods-by-restrictions-test
+  (testing "mods1 mods-restr1"
+    (is (= (check-mods-by-restrictions mods1 mods-restr1)
+           true)))
+  (testing "mods2 mods-restr1"
+    (is (= (check-mods-by-restrictions mods2 mods-restr1)
+           true)))
+  (testing "mods1 mods-restr2"
+    (is (= (check-mods-by-restrictions mods1 mods-restr2)
+           false)))
+  (testing "mods2 mods-restr2"
+    (is (= (check-mods-by-restrictions mods2 mods-restr2)
+           true)))
+  (testing "mods3 mods-restr2"
+    (is (= (check-mods-by-restrictions mods3 mods-restr2)
+           false)))
+  (testing "mods1 mods-restr3"
+    (is (= (check-mods-by-restrictions mods1 mods-restr3)
+           true)))
+  (testing "mods2 mods-restr3"
+    (is (= (check-mods-by-restrictions mods2 mods-restr3)
+           true)))
+  (testing "mods3 mods-restr3"
+    (is (= (check-mods-by-restrictions mods3 mods-restr3)
+           false)))
+  (testing "mods1 mods-restr4"
+    (is (= (check-mods-by-restrictions mods1 mods-restr4)
+           true)))
+  (testing "mods2 mods-restr4"
+    (is (= (check-mods-by-restrictions mods2 mods-restr4)
+           false)))
+  (testing "mods3 mods-restr4"
+    (is (= (check-mods-by-restrictions mods3 mods-restr4)
+           true)))
+  (testing "mods3 mods-restr5"
+    (is (= (check-mods-by-restrictions mods3 mods-restr5)
+           false)))
+  )
