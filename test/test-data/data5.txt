@@ -1,2 +1,3 @@
-("ROOT" ("mod2" "val") (("ident1" ("mod2" 3) ())
-                        ("ident1" ("mod3" 4) ())))
+("ROOT" ("mod2" "val") (
+    ("ident1" ("mod2" 3) ())
+    ("ident1" ("mod3" 4) ())))

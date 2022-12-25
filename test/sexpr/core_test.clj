@@ -46,6 +46,32 @@
            false) ))
   )
 
+(def test-data1 (read-sdata "test/test-data/data1.txt"))
+(def test-data2 (read-sdata "test/test-data/data2.txt"))
+(def test-data3 (read-sdata "test/test-data/data3.txt"))
+(def test-data4 (read-sdata "test/test-data/data4.txt"))
+(def test-data5 (read-sdata "test/test-data/data5.txt"))
+(def test-data6 (read-sdata "test/test-data/data6.txt"))
+(def test-data7 (read-sdata "test/test-data/data7.txt"))
+(def test-data8 (read-sdata "test/test-data/data8.txt"))
+(def test-data9 (read-sdata "test/test-data/data9.txt"))
+
 (deftest check-correctness-test
   (testing "1"
-    (is (= (check-correctness '("ROOT" ())) true))))
+    (is (= (count test-data1) 1)))
+  (testing "2"
+    (is (= (count test-data2) 1)))
+  (testing "3"
+    (is (= (count test-data3) 3)))
+  (testing "4"
+    (is (= (count test-data4) 1)))
+  (testing "5"
+    (is (= (count test-data5) 1)))
+  (testing "6"
+    (is (= (count test-data6) 1)))
+  (testing "7"
+    (is (= (count test-data7) 1)))
+  (testing "8"
+    (is (= (count test-data8) 1)))
+  (testing "9"
+    (is (= (count test-data9) 1))))

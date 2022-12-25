@@ -1,6 +1,7 @@
 (ns sexpr.path-test
   (:require [clojure.test :refer :all]
-            [sexpr.path :refer :all]))
+            [sexpr.path :refer :all]
+            [sexpr.core :refer :all]))
 
 (def empty-element '("empty-element" ()))
 (def empty-element-simple-mod '("empty-element" ("mod1") ()))
@@ -110,4 +111,48 @@
   (testing "joined-condition4 empty-element-simple-mod testing"
     (is (= (check-joined-condition empty-element-simple-mod joined-condition4)
            true)))
+  )
+
+(def test-data1 (first (read-sdata "test/test-data/data1.txt")))
+(def test-data2 (first (read-sdata "test/test-data/data2.txt")))
+(def test-data3 (first (read-sdata "test/test-data/data3.txt")))
+(def test-data4 (first (read-sdata "test/test-data/data4.txt")))
+(def test-data5 (first (read-sdata "test/test-data/data5.txt")))
+(def test-data6 (first (read-sdata "test/test-data/data6.txt")))
+(def test-data7 (first (read-sdata "test/test-data/data7.txt")))
+(def test-data8 (first (read-sdata "test/test-data/data8.txt")))
+(def test-data9 (first (read-sdata "test/test-data/data9.txt")))
+
+(deftest path-testing
+  (testing "1"
+    (is (= (path test-data1 '())
+           (list test-data1))))
+  (testing "2"
+    (is (= (path test-data4 '(("ident1") ))
+           (list '("ident1" ("mod2" 3) ())))))
+  (testing "3"
+    (is (= (path test-data5 '(("ident1")))
+           (list '("ident1" ("mod2" 3) ())
+                 '("ident1" ("mod3" 4) ())))))
+  (testing "4"
+    (is (= (path test-data5 '(
+                              (((() ()) (("ident1") )))
+                              ))
+           (list '("ident1" ("mod2" 3) ())
+                 '("ident1" ("mod3" 4) ())))))
+  (testing "5"
+    (is (= (path test-data5 '(
+                              (((() ()) (("ident1") ("mod2"))))
+                              ))
+           (list '("ident1" ("mod2" 3) ())))))
+  (testing "6"
+    (is (= (path test-data5 '(
+                              (((() ()) (("ident1") ("mod2" 1 3))))
+                              ))
+           (list '("ident1" ("mod2" 3) ())))))
+  (testing "7"
+    (is (= (path test-data5 '(
+                              (((() ()) (("ident1") ("mod2" 4 5))))
+                              ))
+           (list))))
   )
