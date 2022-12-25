@@ -30,7 +30,12 @@
 (def post-modifiers
   (list
     [(fn [mod-name] (= mod-name "№"))
-     (fn [mod-value is-single element current-result] current-result)]
+     (fn [mod-value is-single element current-result]
+       (if is-single
+         current-result
+         (if (or (not (number? mod-value)) (< mod-value 0) (>= mod-value (count current-result)))
+           (list)
+           (list (nth current-result mod-value)))))]
     [(fn [mod-name] (= mod-name "modifier4"))
      (fn [mod-value is-single element current-result] current-result)]))
 
@@ -43,8 +48,11 @@
 
 (def global-post-modifiers
   (list
-    [(fn [mod-name] (= mod-name "global-modifier2"))
-     (fn [mod-value element elements] elements)]
+    [(fn [mod-name] (= mod-name "clear-tails"))
+     (fn [mod-value is-single element elements]
+       (if is-single
+         (concat (butlast elements) '( ()))
+         elements))]
     ))
 
 (defn check-mod-conditions
@@ -68,7 +76,7 @@
                         (let [modifier-size (count modifier)
                               mod-condition-size (count mod-condition)]
                           (cond
-                            (and (= 1 mod-condition-size) (= 1 modifier-size))
+                            (and (= 1 mod-condition-size))
                             (= modifier-ident mod-condition-ident)
                             (and (= 2 mod-condition-size) (= 2 modifier-size))
                             (= (second modifier) (second mod-condition))
@@ -101,7 +109,7 @@
   (if (check-ident-conditions element (first search-condition))
     (if (empty? (rest search-condition))
       true
-      (check-mod-conditions element (first (rest search-condition))))
+      (check-mod-conditions element (rest search-condition)))
     false))
 
 (defn check-joined-condition
@@ -130,7 +138,7 @@
                         0
                         (first start-depth)))
         end-value (if (empty? end-depth) 0 (first end-depth))]
-    (if (and (< end-value start-depth) (>= end-value 0))
+    (if (and (< end-value start-value) (>= end-value 0))
       (throw (AssertionError. "Wrong start end values combination."))
       (loop [depth -1
              elements-to-check (list element)

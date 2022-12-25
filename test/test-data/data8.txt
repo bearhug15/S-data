@@ -1,0 +1,8 @@
+("ROOT" (
+    ("ident1" (
+        ("ident2" ())
+        ("ident3" ())))
+    ("ident1" (
+        ("ident4" ())))
+    ("ident2" (
+        ("ident5" ())))))

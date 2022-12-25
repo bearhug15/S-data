@@ -55,26 +55,33 @@
 
 (defn read-sdata
   [path]
-  (let [data-seq (read-forms path)]
+  (let [data-seq (try
+                   (read-forms path)
+                   (catch Exception e (list))
+                   (finally))]
     (filter
       (fn [data]
         (check-correctness data))
       data-seq)))
+
 (defn -main []
   (let [path-to-file1 "test/test-data/data1.txt"
         path-to-file2 "test/test-data/data2.txt"
         path-to-file3 "test/test-data/data3.txt"
         path-to-file4 "test/test-data/data4.txt"
         path-to-file5 "test/test-data/data5.txt"
-        path-to-file6 "test/test-data/data6.txt"]
+        path-to-file6 "test/test-data/data6.txt"
+        path-to-file7 "test/test-data/data7.txt"
+        path-to-file8 "test/test-data/data8.txt"
+        path-to-file9 "test/test-data/data9.txt"]
     (println (read-sdata path-to-file1))
     (println (read-sdata path-to-file2))
     (println (read-sdata path-to-file3))
     (println (read-sdata path-to-file4))
     (println (read-sdata path-to-file5))
-    (println (read-sdata path-to-file6)))
+    (println (read-sdata path-to-file6))
+    (println (read-sdata path-to-file7))
+    (println (read-sdata path-to-file8))
+    (println (read-sdata path-to-file9)))
   )
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+
