@@ -155,4 +155,83 @@
                               (((() ()) (("ident1") ("mod2" 4 5))))
                               ))
            (list))))
+  (testing "8"
+    (is (= (path test-data5 '(
+                              ((((1) ()) (("ident1"))))
+                              ))
+           (list))))
+  (testing "9"
+    (is (= (path test-data5 '(
+                              ((((0) (1)) (("ident1"))))
+                              ))
+           (list '("ident1" ("mod2" 3) ())
+                 '("ident1" ("mod3" 4) ())))))
+  (testing "10"
+    (is (= (path test-data9 '(
+                              (((() ()) (("ident1"))))
+                              ))
+           (list '("ident1" (
+                            ("ident2" ("mod1") ())
+                            ("ident3" ("mod2" 3) ())))
+                 '("ident1" (
+                            ("ident4" ())))
+                 '("ident1" ("mod3") ())))))
+  (testing "11"
+    (is (= (path test-data9 '(
+                              (((() (1)) (("ident1"))))
+                              ))
+           (list '("ident1" (
+                             ("ident2" ("mod1") ())
+                             ("ident3" ("mod2" 3) ())))
+                 '("ident1" (
+                             ("ident4" ())))))))
+  (testing "12"
+    (is (= (path test-data9 '(
+                              (((() ()) (("ident1"))) ("№" 1))
+                              ))
+           (list '("ident1" (("ident4" ())))))))
+  (testing "13"
+    (is (= (path test-data9 '( ("ROOT" ("clear-tails"))
+                              (((() ()) (("ident1"))))
+                              ))
+           (list '("ident1" ())
+                 '("ident1" ())
+                 '("ident1" ("mod3") ())))))
+  (testing "13"
+    (is (= (path test-data9 '(
+                              (((() ()) (("ident1" "ident2"))))
+                              ))
+           (list '("ident1" (
+                            ("ident2" ("mod1") ())
+                            ("ident3" ("mod2" 3) ())))
+                 '("ident1" (
+                            ("ident4" ())))
+                 '("ident2" (
+                            ("ident5" (
+                                       ("ident1" ("mod3") ())))))))))
+  (testing "14"
+    (is (= (path test-data9 '(
+                              ("ident1")
+                              ("ident3")
+                               ))
+           (list '("ident3" ("mod2" 3) ())))))
+  (testing "15"
+    (is (= (path test-data9 '(
+                              ((((1) (1)) (())))
+                              ))
+           (list '("ident2" ("mod1") ())
+                 '("ident3" ("mod2" 3) ())
+                 '("ident4" ())
+                 '("ident5" (("ident1" ("mod3") ())))))))
+  (testing "16"
+    (is (= (path test-data9 '(("ROOT" ("get-tails"))
+                              ((((1) (1)) (())))
+                              ))
+           (list '("ident1" ("mod3") ())))))
+  (testing "17"
+    (is (= (path test-data9 '(
+                              (((() ()) (("ident1"))))
+                              ("ident3")
+                               ))
+           (list '("ident3" ("mod2" 3) ())))))
   )

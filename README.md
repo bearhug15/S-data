@@ -47,9 +47,9 @@
     SearchConditions ::= '(' SearchDepth JoinedConditions ')'
     SearchDepth ::= '('StartDepth EndDepth')'
     /*Empty or <=0 StartDepth means from current cursor*/
-    StartDepth ::= '(' (Number | Ident)? ')'
+    StartDepth ::= '(' Number? ')'
     /*Empty or <0 StartDepth means till the bottom*/
-    EndDepth ::= '(' (Number | Ident)?')'
+    EndDepth ::= '(' Number? ')'
     /*Several Search Condition is connected as OR*/
     JoinedConditions ::= SearchCondition+ 
     /*If no conditions on Ident, then Ident condition would be ()*/ 
