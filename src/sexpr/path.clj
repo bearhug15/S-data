@@ -53,6 +53,15 @@
        (if is-single
          (concat (butlast elements) '( ()))
          elements))]
+    [(fn [mod-name] (= mod-name "get-tails"))
+     (fn [mod-value is-single element elements]
+       (if is-single
+         elements
+         (reduce
+           (fn [coll element]
+             (concat coll (last element)))
+           (list)
+           elements)))]
     ))
 
 (defn check-mod-conditions
@@ -137,7 +146,7 @@
                       (if (< (first start-depth) 0)
                         0
                         (first start-depth)))
-        end-value (if (empty? end-depth) 0 (first end-depth))]
+        end-value (if (empty? end-depth) Integer/MAX_VALUE (first end-depth))]
     (if (and (< end-value start-value) (>= end-value 0))
       (throw (AssertionError. "Wrong start end values combination."))
       (loop [depth -1
