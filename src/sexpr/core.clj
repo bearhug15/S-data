@@ -1,7 +1,7 @@
 (ns sexpr.core
   (:import [java.io PushbackReader])
   (:require [clojure.java.io :as io]
-             [clojure.edn :as edn]) )
+            [clojure.edn :as edn]))
 
 (defn check-mods-correctness
   [modificators]

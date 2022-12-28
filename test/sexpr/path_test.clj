@@ -235,3 +235,40 @@
                                ))
            (list '("ident3" ("mod2" 3) ())))))
   )
+
+(deftest insert-testing
+  (testing "1"
+    (is (= (insert-elements-by-path test-data4 '(("ident1")) '(("ident2" ())))
+           '("ROOT" ("mod1" "val") (
+                                    ("ident1" ("mod2" 3) (("ident2" ())))
+                                    "val1")))))
+  (testing "2"
+    (is (= (insert-elements-by-path test-data4 '() '(("ident2" ())))
+           '("ROOT" ("mod1" "val") (
+                                    ("ident1" ("mod2" 3) ())
+                                    "val1"
+                                    ("ident2" ()))))))
+  (testing "3"
+    (is (= (insert-elements-by-path test-data5 '(
+                                                 ((((0) (0)) (())))
+                                                 ) '(("ident2" ())))
+           '("ROOT" ("mod2" "val") (
+                                    ("ident1" ("mod2" 3) (("ident2" ())))
+                                    ("ident1" ("mod3" 4) (("ident2" ()))))))))
+  (testing "4"
+    (is (= (insert-elements-by-path test-data8 '(
+                                                 ((((0) ()) (("ident2"))))
+                                                 ) '(("ident6" ())))
+           '("ROOT" (
+                     ("ident1" (
+                                ("ident2" (("ident6" ())))
+                                ("ident3" ())))
+                     ("ident1" (
+                                ("ident4" ())))
+                     ("ident2" (
+                                ("ident5" ())
+                                ("ident6" ()))))))))
+  )
+
+(comment
+  )

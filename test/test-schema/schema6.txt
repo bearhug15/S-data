@@ -1,0 +1,9 @@
+(() (("ident1" () ("mod2") ())) (("ROOT") (
+    ("ident1" () ("mod1") ())
+    ("ident2")
+    )))
+
+(() (("ident2" ("mod2") () ())) (("ROOT") (
+    ("ident1")
+    ("ident2")
+    )))

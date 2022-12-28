@@ -1,7 +1,9 @@
 (ns sexpr.schema-checker
+  (:import [java.io PushbackReader])
   (:require [clojure.set :as set]
             [clojure.core.matrix :as matrix]
-            [clojure.core.matrix.linear :as linear])
+            [clojure.java.io :as io]
+            [clojure.edn :as edn])
   )
 ;(matrix/set-current-implementation :vectorz)
 (def matrix-example
@@ -11,8 +13,7 @@
         1
         (+ idx idy)))
     (matrix/fill (matrix/new-matrix 3 3) 1)))
-(println (matrix/matrix '([1 2 3] [1 2 3])))
-(println matrix-example)
+
 (defn check-idents-restrictions
   [gir]
   (if (and (seq? gir) (= 3 (count gir)))
@@ -119,6 +120,7 @@
 
 (defn check-schema-correctness
   [schema]
+  ;(println schema)
   (if (and (seq? schema) (= 3 (count schema)))
     (and
       (if (empty? (first schema))
@@ -132,14 +134,24 @@
           (= 2 (count root-schema))
           (and
             (check-root (first root-schema))
-            (check-schema (second root-schema)))
+            (reduce
+              (fn [res schema-value]
+                (and
+                  res
+                  (if (schema-value-is-schema schema-value)
+                    (check-schema schema-value)
+                    (check-schema-ident schema-value))))
+              true
+              (second root-schema)))
           :else false)
         ))
     false))
 
 (defn get-restrictions
   [restrictions]
-  ([(set (first restrictions)) (set (second restrictions)) (set (last restrictions))]))
+  (if (empty? restrictions)
+    [#{}, #{}, #{}]
+    [(set (first restrictions)) (set (second restrictions)) (set (last restrictions))]))
 
 (defn get-ident-mods-restrictions
   [restrictions]
@@ -149,21 +161,22 @@
     (hash-map)
     restrictions))
 
-(defn schema-ident-is-ident
-  [schema-ident]
-  (string? (first schema-ident)))
-
 ;;
 (defn check-mods-by-restrictions
   [mods mods-restrictions]
+  ;(println mods mods-restrictions)
   (let [[present-mods possible-mods nonpresent-mods] mods-restrictions
         [upm, _, res]
         (reduce
           (fn [[present-mods possible-mods res] mod]
             (let [mod-name (first mod)]
-
+              ;(println (type present-mods))
               (if (contains? present-mods mod-name)
-                [(disj present-mods mod-name) (conj possible-mods mod-name) (and res true)]
+                [(disj present-mods mod-name)
+                 (if (empty? possible-mods)
+                   possible-mods
+                   (conj possible-mods mod-name))
+                 (and res true)]
                 (if (empty? possible-mods)
                   (if (contains? nonpresent-mods mod-name)
                     [present-mods possible-mods false]
@@ -173,6 +186,7 @@
                     [present-mods possible-mods false])))))
           [present-mods possible-mods true]
           mods)]
+    ;(println res)
     (if res
       (empty? upm)
       false))
@@ -218,7 +232,8 @@
     (let [[pr-restr po-restr non-restr] mods-restr
           [new-pr-restr new-po-restr new-non-restr] (get basic-ident-mods-restr ident)]
       [(set/union pr-restr new-pr-restr) (set/union po-restr new-po-restr) (set/union non-restr new-non-restr)])
-    mods-restr))
+    (let [[pr-restr po-restr non-restr] mods-restr]
+      [(set pr-restr),(set po-restr),(set non-restr)])))
 
 (declare check-by-schema)
 
@@ -314,7 +329,6 @@
         ))
     ))
 
-
 (defn check-matrix-diag
   [m]
   (let [[x y] (matrix/shape m)
@@ -329,9 +343,9 @@
       true
       diag)))
 
-
 (defn check-matrix
   [m]
+  ;(println (matrix/dimensionality m))
   (and
     (check-rows m)
     (check-columns m)
@@ -341,7 +355,7 @@
           (some
             (fn [val]
               (if val
-                (let [[m] indexes]
+                (let [[m indexes] val]
                   (if (check-matrix-diag m)
                     m
                     false))
@@ -358,9 +372,16 @@
   (let [cleared-elements (clear-elements elements)
         e-size (count cleared-elements)
         s-size (count schema-values)]
-    (if (or (< e-size s-size) (and (empty? schema-values) (not (empty? clear-elements))))
+    ;(println elements e-size schema-values s-size)
+    (if (or
+          (< e-size s-size)
+          (and
+            (empty? schema-values)
+            (not (empty? cleared-elements))))
       [false bir]
-      (let [res-matrix (matrix/fill (matrix/new-matrix e-size s-size) 0)
+      (if (and (= e-size 0) (= s-size 0))
+        [true bir]
+        (let [res-matrix (matrix/fill (matrix/new-matrix e-size s-size) 0)
             ures-matrix
             (matrix/emap-indexed
               (fn [[idx idy] val]
@@ -370,7 +391,8 @@
                   (if res 1 0)
                   ))
               res-matrix)]
-        [(check-matrix ures-matrix), bir])))
+          ;(println e-size s-size res-matrix ures-matrix)
+        [(check-matrix ures-matrix), bir]))))
   )
 
 (defn check-by-schema
@@ -379,7 +401,7 @@
     (let [schema-ident (first schema)
           schema-values (second schema)
           schema-ident-restr (first schema-ident)
-          schema-mods-restr (rest schema-ident)
+          schema-mods-restr (get-restrictions (rest schema-ident))
           [res upd-bir] (check-element-by-restrictions
                           data
                           base-ident-restrictions
@@ -396,20 +418,42 @@
         base-ident-mods-restr (get-ident-mods-restrictions (second schema))
         root-schema (last schema)
         root-restr (first root-schema)
-        root-res (check-element-by-restrictions
+         [root-res,_] (check-element-by-restrictions
                    data
                    idents-restrictions
                    "ROOT"
-                   (rest root-restr))
+                   (get-restrictions (rest root-restr)))
         elements (clear-elements (last data))]
     (if root-res
       (let [schemas (first (rest root-schema))]
         (if (nil? schemas)
           true
-          (check-elements-by-schema-values
+          (first (check-elements-by-schema-values
             elements
             schemas
             idents-restrictions
-            base-ident-mods-restr)))
-      (false))
+            base-ident-mods-restr))))
+      false)
     ))
+
+(defn read-forms [file]
+  (let [rdr (-> file io/file io/reader PushbackReader.)
+        sentinel (Object.)]
+    (loop [forms []]
+      (let [form (edn/read {:eof sentinel} rdr)]
+        (if (= sentinel form)
+          forms
+          (recur (conj forms form)))))))
+
+(defn read-schemas
+  [path]
+  (let [data-seq (try
+                   (read-forms path)
+                   (catch Exception e (list))
+                   (finally))]
+    ;(println data-seq)
+    (filter
+      (fn [data]
+        ;(println data)
+        (check-schema-correctness data))
+      data-seq)))

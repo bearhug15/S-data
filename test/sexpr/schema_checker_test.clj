@@ -1,6 +1,7 @@
 (ns sexpr.schema-checker-test
   (:require [clojure.test :refer :all]
-            [sexpr.schema-checker :refer :all]))
+            [sexpr.schema-checker :refer :all])
+  (:use [sexpr.core :only [read-sdata]]))
 
 (def global-ident-restrictions1 '())
 (def global-ident-restrictions2 '(() () ()))
@@ -144,5 +145,83 @@
            true)))
   (testing "mods3 mods-restr5"
     (is (= (check-mods-by-restrictions mods3 mods-restr5)
+           false)))
+  )
+
+(def test-data1 (first (read-sdata "test/test-data/data1.txt")))
+(def test-data2 (first (read-sdata "test/test-data/data2.txt")))
+(def test-data3 (first (read-sdata "test/test-data/data3.txt")))
+(def test-data4 (first (read-sdata "test/test-data/data4.txt")))
+(def test-data5 (first (read-sdata "test/test-data/data5.txt")))
+(def test-data6 (first (read-sdata "test/test-data/data6.txt")))
+(def test-data7 (first (read-sdata "test/test-data/data7.txt")))
+(def test-data8 (first (read-sdata "test/test-data/data8.txt")))
+(def test-data9 (first (read-sdata "test/test-data/data9.txt")))
+
+(def test-schemas1 (read-schemas "test/test-schema/schema1.txt"))
+(def test-schema1_1 (first test-schemas1))
+(def test-schema2 (first (read-schemas "test/test-schema/schema2.txt")))
+
+(def test-schemas3 (read-schemas "test/test-schema/schema3.txt"))
+(def test-schema3_0 (nth test-schemas3 0))
+(def test-schema3_1 (nth test-schemas3 1))
+(def test-schema3_2 (nth test-schemas3 2))
+(def test-schema3_3 (nth test-schemas3 3))
+(def test-schema3_4 (nth test-schemas3 4))
+
+(def test-schemas4 (read-schemas "test/test-schema/schema4.txt"))
+;(println test-schemas4)
+(def test-schema4_0 (nth test-schemas4 0))
+(def test-schema4_1 (nth test-schemas4 1))
+
+(def test-schemas5 (read-schemas "test/test-schema/schema5.txt"))
+(def test-schema5_0 (nth test-schemas5 0))
+
+(def test-schemas6 (read-schemas "test/test-schema/schema6.txt"))
+(def test-schema6_0 (nth test-schemas6 0))
+(def test-schema6_1 (nth test-schemas6 1))
+
+(deftest check-by-full-schema-testing
+  (testing "1"
+    (is (= (check-by-full-schema test-data1 test-schema1_1)
+           true)))
+  (testing "2"
+    (is (= (check-by-full-schema test-data2 test-schema3_0)
+           true)))
+  (testing "3"
+    (is (= (check-by-full-schema test-data2 test-schema3_1)
+           false)))
+  (testing "4"
+    (is (= (check-by-full-schema test-data2 test-schema3_2)
+           false)))
+  (testing "5"
+    (is (= (check-by-full-schema test-data2 test-schema3_3)
+           true)))
+  (testing "6"
+    (is (= (check-by-full-schema test-data2 test-schema3_4)
+           true)))
+  (testing "7"
+    (is (= (check-by-full-schema test-data2 test-schema4_0)
+           false)))
+  (testing "8"
+    (is (= (check-by-full-schema test-data4 test-schema4_0)
+           true)))
+  (testing "9"
+    (is (= (check-by-full-schema test-data4 test-schema4_1)
+           false)))
+  (testing "10"
+    (is (= (check-by-full-schema test-data5 test-schema4_0)
+           true)))
+  (testing "11"
+    (is (= (check-by-full-schema test-data5 test-schema5_0)
+           true)))
+  (testing "12"
+    (is (= (check-by-full-schema test-data4 test-schema5_0)
+           false)))
+  (testing "13"
+    (is (= (check-by-full-schema test-data6 test-schema6_0)
+           true)))
+  (testing "14"
+    (is (= (check-by-full-schema test-data6 test-schema6_1)
            false)))
   )
