@@ -51,7 +51,7 @@
     [(fn [mod-name] (= mod-name "clear-tails"))
      (fn [mod-value is-single element elements]
        (if is-single
-         (concat (butlast elements) '( ()))
+         (concat (butlast elements) '(()))
          elements))]
     [(fn [mod-name] (= mod-name "get-tails"))
      (fn [mod-value is-single element elements]
@@ -138,6 +138,7 @@
         (filter (fn [val] (seq? val)) elem-coll)))
     objects))
 
+;get list of elements which matches condition
 (defn get-elems-by-condition
   [element condition]
   (let [[start-depth end-depth] (first condition)
@@ -195,7 +196,7 @@
 
 (defn go-by-path
   ([data path global-pre-mods global-post-mods]
-   (let [pre-modified (if (empty? global-pre-mods) data (apply-modifiers data (list) global-pre-mods))
+   (let [pre-modified (if (empty? global-pre-mods) data (apply-modifiers data (list data) global-pre-mods))
          result
          (loop [sub-result (list pre-modified)
                 path path]
@@ -228,3 +229,150 @@
             global-post-mods (get-modifiers first-path-part global-post-modifiers)]
         (go-by-path data (rest path) global-pre-mods global-post-mods))
       (go-by-path data path (list) (list)))))
+
+
+(def insert-pre-modifiers
+  (list
+    [(fn [mod-name] (= mod-name "modifier1"))
+     (fn [mod-value element] element)]
+    [(fn [mod-name] (= mod-name "modifier2"))
+     (fn [mod-value element] element)]))
+(def insert-post-modifiers
+  (list
+    [(fn [mod-name] (= mod-name "modifier4"))
+     (fn [mod-value element] element)]))
+(def global-insert-pre-modifiers
+  (list
+    [(fn [mod-name] (= mod-name "global-modifier1"))
+     (fn [mod-value element] element)]
+    ))
+(def global-insert-post-modifiers
+  (list
+    [(fn [mod-name] (= mod-name "global-modifier1"))
+     (fn [mod-value element] element)]
+    ))
+
+(defn apply-insert-modifiers
+  [element modifiers-list]
+  (reduce
+    (fn [modifier]
+      (modifier element))
+    element
+    modifiers-list))
+
+
+(declare insert-elements-go-by-path)
+
+(defn insert-elems-by-ident
+  [data ident path elements]
+  (if (seq? data)
+    (let [data-ident (first data)
+          data-coll (last data)]
+      (if (= data-ident ident)
+        (if (empty? path)
+          (concat (butlast data) (list (concat data-coll elements)))
+          (concat
+            (butlast data)
+            (list
+              (map
+                (fn [element]
+                  (insert-elements-go-by-path element path elements))
+                data-coll))))
+        data))
+    data))
+
+(defn insert-elems-by-condition
+  ([data search-condition path elements]
+   (if (seq? data)
+     (let [[start-depth end-depth] (first search-condition)
+           start-value (if (empty? start-depth)
+                         0
+                         (if (< (first start-depth) 0)
+                           0
+                           (first start-depth)))
+           end-value (if (empty? end-depth) Integer/MAX_VALUE (max 0 (first end-depth)))
+           res (insert-elems-by-condition data 0 start-value end-value search-condition path elements)]
+       ;(println res)
+       res
+       )
+     data)
+   )
+  ([data depth start end search-condition path elements]
+   ;(println data)
+   ;(println depth start end)
+   ;(println path)
+   ;(println elements)
+   (if (seq? data)
+     (let [condition (rest search-condition)]
+       (cond
+         (< depth start)
+         (let [data-coll (last data)]
+           (concat
+             (butlast data)
+             (list
+               (map
+                 (fn [element]
+                   (insert-elems-by-condition element (+ depth 1) start end search-condition path elements))
+                 data-coll))))
+         (and (>= depth start) (<= depth end))
+         (let [data-coll (last data)]
+           ;(println (check-joined-condition data condition))
+           (if (check-joined-condition data condition)
+             (concat
+               (butlast data)
+               (list
+                 (if (empty? path)
+                   (concat data-coll elements)
+                   (map
+                     (fn [element]
+                       (insert-elements-go-by-path element path elements))
+                     data-coll))))
+             (concat
+               (butlast data)
+               (list
+                 (map
+                   (fn [element]
+                     (insert-elems-by-condition element (+ depth 1) start end search-condition path elements))
+                   data-coll)))))
+         (> depth end)
+         data))
+     data)))
+
+(defn insert-elements-go-by-path
+  [data path elements]
+
+  (if (seq? data)
+    (let [path-part (first path)
+          search-condition (first path-part)
+          pre-mods (get-modifiers path-part insert-pre-modifiers)
+          post-mods (get-modifiers path-part insert-post-modifiers)
+          pre-data (apply-insert-modifiers data pre-mods)
+          insert-elems-func (if (seq? search-condition) insert-elems-by-condition insert-elems-by-ident)
+          res (apply-insert-modifiers (insert-elems-func pre-data search-condition (rest path) elements) post-mods)]
+      res)
+    data))
+
+(defn insert-elements-by-path
+  [data path elements]
+  (if (empty? path)
+    (concat (butlast data) (list (concat (last data) elements)))
+    (let [first-path-part (first path)
+          part-name (first first-path-part)]
+      (if (= part-name "ROOT")
+        (let [global-pre-mods (get-modifiers first-path-part global-insert-pre-modifiers)
+              global-post-mods (get-modifiers first-path-part global-insert-post-modifiers)
+              premodified-data (apply-insert-modifiers data global-pre-mods)
+              in-data (concat
+                        (butlast premodified-data)
+                        (list (map
+                                (fn [element]
+                                  (insert-elements-go-by-path element (rest path) elements))
+                                (last premodified-data))))]
+          (apply-insert-modifiers in-data global-post-mods))
+        (concat
+          (butlast data)
+          (list (map
+                  (fn [element]
+                    (insert-elements-go-by-path element path elements))
+                  (last data)))))))
+  )
