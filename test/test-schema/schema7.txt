@@ -1,0 +1,18 @@
+(() () (("ROOT") (
+    ("ident1")
+    ("ident2")
+    ("ident3")
+    )))
+
+(() () (("ROOT") (
+    (("ident1") ())
+    (("ident2") ())
+    (("ident3") ())
+    )))
+
+(() () (("ROOT") (
+    ("ident1")
+    ("ident2")
+    ("ident3")
+    (((()("ident2" "ident3")())) ())
+    )))
