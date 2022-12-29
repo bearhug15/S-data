@@ -195,7 +195,9 @@
 ;; returns [result, possibly updated ident-restrictions]
 (defn check-ident-by-restrictions
   [ident restrictions]
-  (if (seq? restrictions)
+  ;(println ident)
+  ;(println restrictions)
+  (if (vector? restrictions)
     (let [[present-ident possible-ident nonpresent-ident] restrictions]
       (if (contains? present-ident ident)
         [true [(disj present-ident ident) (conj possible-ident ident) nonpresent-ident]]
@@ -206,7 +208,9 @@
           (if (contains? possible-ident ident)
             [true restrictions]
             [false restrictions]))))
-    (throw (new Exception "wrong ident restriction format"))))
+    (throw (new Exception "wrong ident restriction format"))
+    ;[false restrictions]
+    ))
 
 ;; returns [result, possibly updated basic-ident-restrictions]
 (defn check-element-by-restrictions
@@ -216,8 +220,8 @@
         [b-pr-ident b-po-ident b-non-ident] base-ident-restrictions]
     (if (string? loc-ident-restrictions)
       (let [new-b-po-ident (if (contains? b-pr-ident ident) (conj b-po-ident ident) b-po-ident)] [(and (= ident loc-ident-restrictions) (check-mods-by-restrictions mods mods-restrictions)), [(disj b-pr-ident ident) new-b-po-ident b-non-ident]])
-      (let [[loc-pr-restr loc-po-restr loc-non-restr] loc-ident-restrictions
-            new-loc-pr-restr loc-pr-restr
+      (let [[loc-pr-restr loc-po-restr loc-non-restr] (get-restrictions loc-ident-restrictions)
+            new-loc-pr-restr (set loc-pr-restr)
             new-loc-po-restr (set/union (set/difference b-po-ident loc-non-restr) loc-po-restr)
             new-loc-non-restr (set/union (set/difference b-non-ident loc-pr-restr loc-po-restr) loc-non-restr)
             [ident-res, _] (check-ident-by-restrictions ident [new-loc-pr-restr new-loc-po-restr new-loc-non-restr])

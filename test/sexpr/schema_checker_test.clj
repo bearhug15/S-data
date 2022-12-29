@@ -157,6 +157,8 @@
 (def test-data7 (first (read-sdata "test/test-data/data7.txt")))
 (def test-data8 (first (read-sdata "test/test-data/data8.txt")))
 (def test-data9 (first (read-sdata "test/test-data/data9.txt")))
+(def test-data10 (first (read-sdata "test/test-data/data10.txt")))
+(def test-data11 (first (read-sdata "test/test-data/data11.txt")))
 
 (def test-schemas1 (read-schemas "test/test-schema/schema1.txt"))
 (def test-schema1_1 (first test-schemas1))
@@ -180,6 +182,11 @@
 (def test-schemas6 (read-schemas "test/test-schema/schema6.txt"))
 (def test-schema6_0 (nth test-schemas6 0))
 (def test-schema6_1 (nth test-schemas6 1))
+
+(def test-schemas7 (read-schemas "test/test-schema/schema7.txt"))
+(def test-schema7_0 (nth test-schemas7 0))
+(def test-schema7_1 (nth test-schemas7 1))
+(def test-schema7_2 (nth test-schemas7 2))
 
 (deftest check-by-full-schema-testing
   (testing "1"
@@ -223,5 +230,17 @@
            true)))
   (testing "14"
     (is (= (check-by-full-schema test-data6 test-schema6_1)
+           false)))
+  (testing "15"
+    (is (= (check-by-full-schema test-data9 test-schema6_1)
+           false)))
+  (testing "16"
+    (is (= (check-by-full-schema test-data10 test-schema7_0)
+           true)))
+  (testing "17"
+    (is (= (check-by-full-schema test-data10 test-schema7_1)
+           false)))
+  (testing "18"
+    (is (= (check-by-full-schema test-data11 test-schema7_2)
            false)))
   )
